@@ -185,8 +185,8 @@ def home():
     </div>
     <div class="stagger grid-3">
       <blockquote class="quote">
-        <p>[اكتب رأي العميل هنا بالنص بتاعه.]</p>
-        <footer><span class="avatar">أ</span><span><cite>اسم العميل</cite><small>المسمى — اسم الشركة</small></span></footer>
+        <p>[محترف وبيعرف يحل المشاكل]</p>
+        <footer><span class="avatar">أ</span><span><cite>علي فراج السيد</cite><small> علي فرج  </small></span></footer>
       </blockquote>
     </div>
   </div>
