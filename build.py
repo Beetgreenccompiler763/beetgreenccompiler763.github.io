@@ -6,7 +6,7 @@
 """
 import json, os, sys, io, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from projects import PROJECTS, FILTERS
+from projects import PROJECTS, FILTERS, TESTIMONIALS
 
 # ⚠️ غيّر السطر ده لعنوان موقعك الحقيقي (بشرطة مائلة في الآخر)
 SITE = "https://iegy.github.io/"
@@ -66,7 +66,7 @@ def work_card(p, idx=None):
     return f'''      <article class="work" data-cat="{p['cats']}">
         <a class="work-shot" href="work-{p['slug']}.html" aria-label="تفاصيل مشروع {p['short']}">
           <span class="work-idx">&lt;{p['n']}/&gt;</span>
-          <img src="thumb-{p['slug']}.webp" alt="واجهة مشروع {p['short']}" width="880" height="550" loading="lazy" decoding="async">
+          <img src="thumb-{p['slug']}.webp" alt="لقطة من مشروع {p['short']}" width="880" height="550" loading="lazy" decoding="async">
         </a>
         <div class="work-body">
           <h3><a href="work-{p['slug']}.html">{p['title']}</a></h3>
@@ -103,6 +103,25 @@ def home():
         <div class="card-icon">{svg(i)}</div>
         <h3>{t}</h3><p>{d}</p>
       </div>''' for i, t, d in services)
+
+    if TESTIMONIALS:
+        qs = "\n".join(f'''      <blockquote class="quote">
+        <p>{txt}</p>
+        <footer><span class="avatar">{who[0]}</span><span><cite>{who}</cite><small>{role}</small></span></footer>
+      </blockquote>''' for txt, who, role in TESTIMONIALS)
+        quotes = f'''<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">CLIENTS</div>
+      <h2>اللي العملاء قالوه</h2>
+    </div>
+    <div class="stagger grid-3">
+{qs}
+    </div>
+  </div>
+</section>'''
+    else:
+        quotes = ""
 
     body = f'''
 <section style="padding-block:clamp(52px,8vw,104px) clamp(40px,6vw,76px)">
@@ -173,25 +192,7 @@ def home():
   </div>
 </section>
 
-<!-- ══════════════════════════════════════════════════════════════════
-     آراء العملاء — أقوى إضافة ممكنة للموقع، بس لازم تكون حقيقية.
-     شيل سطر البداية وسطر النهاية بتوع التعليق ده، وبدّل النصوص بآراء عملاء فعليين.
-     ══════════════════════════════════════════════════════════════════
-<section>
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow">CLIENTS</div>
-      <h2>اللي العملاء قالوه</h2>
-    </div>
-    <div class="stagger grid-3">
-      <blockquote class="quote">
-        <p>[محترف وبيعرف يحل المشاكل]</p>
-        <footer><span class="avatar">أ</span><span><cite>علي فراج السيد</cite><small> علي فرج  </small></span></footer>
-      </blockquote>
-    </div>
-  </div>
-</section>
--->
+{quotes}
 
 {CTA}
 '''
@@ -431,7 +432,7 @@ def contact():
     </div>
 
     <form id="contact-form" class="reveal card" style="clip-path:none;border-radius:var(--radius-lg)" novalidate
-          data-access-key="YOUR-WEB3FORMS-KEY">
+          data-access-key="dc9615a9-63f3-4806-91e3-6828f5b85ffe">
       <div class="field">
         <label for="name">الاسم</label>
         <input id="name" name="name" type="text" placeholder="اسمك الكامل" autocomplete="name" required>
@@ -500,7 +501,7 @@ def case(p, prev, nxt):
 {meta}
     </dl>
     <div class="case-shot reveal">
-      <img src="cover-{p['slug']}.webp" alt="واجهة {p['short']}" width="1600" height="1000" decoding="async">
+      <img src="cover-{p['slug']}.webp" alt="لقطة من واجهة {p['short']}" width="1600" height="1000" decoding="async">
     </div>
   </div>
 </div>
