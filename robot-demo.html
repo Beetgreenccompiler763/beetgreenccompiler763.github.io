@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تجربة الروبوت — محمد حسين</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem('mh-theme');
+if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<style>
+/* ── شريط اختيار الوضع ── */
+.modebar{
+  position:fixed; inset-inline:0; bottom:0; z-index:90;
+  background:color-mix(in srgb,var(--surface) 94%,transparent);
+  backdrop-filter:blur(14px); border-top:1px solid var(--line);
+  padding:11px var(--gutter); display:flex; gap:9px; align-items:center;
+  flex-wrap:wrap; justify-content:center; box-shadow:0 -10px 30px -20px rgba(0,0,0,.4);
+}
+.modebar b{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-inline-end:6px}
+.modebtn{
+  font-family:var(--font-disp); font-size:.84rem; font-weight:700;
+  padding:8px 15px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--line-strong); background:transparent; color:var(--text-soft);
+  transition:all .2s var(--ease);
+}
+.modebtn:hover{border-color:var(--accent);color:var(--text)}
+.modebtn[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+main{padding-bottom:96px}
+
+/* ── الروبوت ── */
+.bot{
+  --sz:78px;
+  position:fixed; width:var(--sz); z-index:80; pointer-events:auto; cursor:pointer;
+  filter:drop-shadow(0 12px 18px rgba(33,30,26,.28));
+  transition:opacity .4s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+html[data-theme="dark"] .bot{filter:drop-shadow(0 12px 20px rgba(0,0,0,.6))}
+.bot svg{width:100%;height:auto;display:block;overflow:visible}
+.bot.hidden{opacity:0;pointer-events:none}
+
+/* حركة السكون */
+.bot-inner{transform-origin:50% 100%; animation:bob 2.6s var(--ease) infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* الرمش */
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}
+.eye.r{animation-delay:.06s}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+
+/* الأرجل */
+.leg{transform-box:fill-box;transform-origin:50% 0}
+.walking .leg.l{animation:stepA .42s ease-in-out infinite}
+.walking .leg.r{animation:stepB .42s ease-in-out infinite}
+@keyframes stepA{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-15deg)}}
+@keyframes stepB{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
+.walking .bot-inner{animation:bob .42s ease-in-out infinite}
+
+/* الذراع */
+.arm{transform-box:fill-box;transform-origin:50% 8%}
+.waving .arm.l{animation:wave .5s ease-in-out 4}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-58deg)}}
+
+/* القفزة */
+.jumping .bot-inner{animation:jump .62s var(--ease)}
+@keyframes jump{
+  0%{transform:translateY(0) scaleY(1)}
+  18%{transform:translateY(0) scaleY(.78) scaleX(1.12)}
+  50%{transform:translateY(-38px) scaleY(1.1) scaleX(.93)}
+  82%{transform:translateY(0) scaleY(.86) scaleX(1.08)}
+  100%{transform:translateY(0) scaleY(1)}
+}
+
+/* الهوائي */
+.spark{transform-box:fill-box;transform-origin:center;animation:spark 1.7s ease-in-out infinite}
+@keyframes spark{0%,100%{opacity:.55;r:2.6}50%{opacity:1;r:3.4}}
+
+/* فقاعة الكلام */
+.bubble{
+  position:absolute; bottom:calc(100% + 10px); inset-inline-end:0;
+  background:var(--surface); border:1px solid var(--line-strong);
+  padding:8px 13px; border-radius:12px; font-size:.8rem; white-space:nowrap;
+  color:var(--text); box-shadow:var(--shadow-md);
+  opacity:0; transform:translateY(6px) scale(.94); transform-origin:100% 100%;
+  transition:opacity .25s var(--ease), transform .25s var(--ease); pointer-events:none;
+}
+.bubble.show{opacity:1;transform:none}
+.bubble::after{
+  content:""; position:absolute; top:100%; inset-inline-end:20px;
+  border:6px solid transparent; border-top-color:var(--surface);
+}
+
+/* الأوضاع */
+.bot.mode-companion{bottom:82px; inset-inline-start:24px; transition:inset-inline-start .8s var(--ease), opacity .4s}
+.bot.mode-terminal{position:absolute; --sz:62px; inset:auto; filter:drop-shadow(0 6px 12px rgba(0,0,0,.5))}
+.bot.mode-bounce{top:0; inset-inline-start:0; transition:opacity .4s var(--ease)}
+
+.term-host{position:relative}
+
+.note{
+  font-family:var(--font-mono); font-size:.74rem; color:var(--muted);
+  border:1px dashed var(--line-strong); border-radius:8px; padding:12px 15px; margin-top:26px;
+}
+@media (max-width:640px){ .bot{--sz:60px} .modebar b{display:none} }
+</style>
+</head>
+<body data-page="">
+
+<main id="main">
+
+<section style="padding-block:clamp(44px,7vw,84px) clamp(30px,5vw,56px)">
+  <div class="wrap hero-split">
+    <div>
+      <div class="eyebrow">ROBOT DEMO</div>
+      <h1 style="font-size:clamp(1.7rem,3.6vw,2.5rem)">جرّب التلات أوضاع<br>واختار اللي عاجبك.</h1>
+      <p class="lead" style="margin-top:16px;max-width:480px">
+        بدّل بين الأوضاع من الشريط اللي تحت. الروبوت ده مرسوم من لغة اللوجو —
+        ورق مطوي، عينين <span class="mono">&lt;/&gt;</span>، ولمسة جمرية.
+        لما تبعت الصورة اللي في بالك هعيد رسمه عليها.
+      </p>
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+        <a href="#work" class="btn btn-primary">دوس عليه وشوف</a>
+        <a href="index.html" class="btn btn-outline">رجوع للموقع</a>
+      </div>
+      <div class="note" id="hint">اختار وضع من تحت ⬇</div>
+    </div>
+
+    <div class="terminal term-host" id="termHost">
+      <div class="term-dots">
+        <span style="background:#E4894B"></span><span style="background:#D6C3A9"></span><span style="background:#9DA287"></span>
+      </div>
+      <div class="term-body" style="min-height:118px">
+        <span style="color:#9DA287">$</span> <span id="termLine"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider">&lt;/&gt; محتوى تجريبي عشان تشوفه في سياق حقيقي</div></div>
+
+<section class="tight" id="work">
+  <div class="wrap">
+    <div class="section-head"><h2>مشاريع</h2><p>اسكرول تحت وشوف الروبوت بيعمل إيه.</p></div>
+    <div class="grid-3">
+      <div class="card"><h3>NewShop</h3><p>كاشير ومخزون بيشتغل أوفلاين.</p></div>
+      <div class="card"><h3>EgyUp Cloud</h3><p>إدارة مالية شخصية بمزامنة سحابية.</p></div>
+      <div class="card"><h3>نظارات نور</h3><p>تتبع طلبات متعدد الفروع.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-alt">
+  <div class="wrap">
+    <div class="section-head"><h2>خدمات</h2><p>كمان شوية محتوى عشان الصفحة تطول.</p></div>
+    <div class="grid-2">
+      <div class="card"><h3>تطوير مواقع</h3><p>مواقع تعريفية وأنظمة إدارة مخصصة.</p></div>
+      <div class="card"><h3>تطبيقات موبايل</h3><p>أندرويد و iOS بواجهة عربية سلسة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head"><h2>تواصل</h2><p>آخر قسم في الصفحة التجريبية.</p></div>
+    <div class="card" style="max-width:520px"><h3>ابعتلي فكرتك</h3><p>ده مجرد كارت شكلي في الديمو.</p></div>
+  </div>
+</section>
+</main>
+
+<!-- ══════════ الروبوت ══════════ -->
+<div class="bot mode-companion" id="bot" role="button" tabindex="0" aria-label="روبوت تفاعلي — اضغط للتفاعل">
+  <div class="bubble" id="bubble"></div>
+  <div class="bot-inner">
+    <svg viewBox="0 0 64 76" aria-hidden="true">
+      <!-- الهوائي -->
+      <path d="M32 13 V6" stroke="var(--sand-dark)" stroke-width="2.4" stroke-linecap="round"/>
+      <circle class="spark" cx="32" cy="4" r="3" fill="var(--ember)"/>
+
+      <!-- الرأس: ورق مطوي (ركن مقصوص) -->
+      <path d="M14 14 H45 L52 21 V40 A3 3 0 0 1 49 43 H17 A3 3 0 0 1 14 40 Z"
+            fill="var(--sand)" stroke="rgba(33,30,26,.22)" stroke-width="1.1"/>
+      <path d="M45 14 L52 21 H46 A1 1 0 0 1 45 20 Z" fill="var(--sand-dark)" opacity=".55"/>
+
+      <!-- شاشة الوش -->
+      <rect x="18" y="19.5" width="29" height="17.5" rx="4" fill="#211E1A"/>
+
+      <!-- العينين: < و > -->
+      <path class="eye l" d="M27 25 L23 28.5 L27 32" fill="none" stroke="#9DA287"
+            stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="eye r" d="M37 25 L41 28.5 L37 32" fill="none" stroke="#9DA287"
+            stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- الشرطة المائلة في النص -->
+      <path d="M33.6 24.6 L30.4 32.4" stroke="var(--ember)" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+
+      <!-- الرقبة -->
+      <rect x="29" y="43" width="6" height="5" fill="var(--sand-dark)" opacity=".8"/>
+
+      <!-- الذراعين -->
+      <rect class="arm l" x="7"  y="50" width="7" height="16" rx="3.5" fill="var(--sand-dark)"/>
+      <rect class="arm r" x="50" y="50" width="7" height="16" rx="3.5" fill="var(--sand-dark)"/>
+
+      <!-- الجسم: ورق نعناعي مطوي -->
+      <path d="M12 47 H45 L52 54 V65 A3 3 0 0 1 49 68 H15 A3 3 0 0 1 12 65 Z"
+            fill="var(--sage)" stroke="rgba(33,30,26,.2)" stroke-width="1.1"/>
+      <path d="M45 47 L52 54 H46 A1 1 0 0 1 45 53 Z" fill="var(--sage-dark)" opacity=".6"/>
+      <!-- سطر كود على الصدر -->
+      <rect x="19" y="55" width="17" height="2.4" rx="1.2" fill="rgba(255,255,255,.55)"/>
+      <rect x="19" y="60" width="11" height="2.4" rx="1.2" fill="rgba(255,255,255,.4)"/>
+
+      <!-- الأرجل -->
+      <rect class="leg l" x="20" y="67" width="8" height="9" rx="4" fill="var(--sage-dark)"/>
+      <rect class="leg r" x="36" y="67" width="8" height="9" rx="4" fill="var(--sage-dark)"/>
+    </svg>
+  </div>
+</div>
+
+<div class="modebar">
+  <b>MODE</b>
+  <button class="modebtn" data-mode="companion" aria-pressed="true">رفيق الركن</button>
+  <button class="modebtn" data-mode="terminal" aria-pressed="false">ساكن الترمينال</button>
+  <button class="modebtn" data-mode="bounce" aria-pressed="false">متنطط</button>
+  <button class="modebtn" data-mode="off" aria-pressed="false">اقفله</button>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bot    = document.getElementById('bot');
+  var bubble = document.getElementById('bubble');
+  var host   = document.getElementById('termHost');
+  var hint   = document.getElementById('hint');
+  var inner  = bot.querySelector('.bot-inner');
+  var mode = 'companion', raf = null, bubbleTimer = null;
+
+  var LINES = {
+    companion: ['أهلًا 👋 أنا ماشي معاك', 'اسكرول تحت وأنا هجري جنبك', 'دوس عليّ تاني'],
+    terminal:  ['بشتغل…', 'الكود شغّال ✓', 'اضغط أي زرار فوق'],
+    bounce:    ['يوهوووو 🚀', 'مش هعرف أقف!', 'قرّب الماوس مني']
+  };
+  var SECTIONS = ['أول الصفحة', 'المشاريع', 'الخدمات', 'التواصل'];
+
+  function say(txt, ms){
+    bubble.textContent = txt;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(function(){ bubble.classList.remove('show'); }, ms || 2600);
+  }
+  function flash(cls, ms){
+    bot.classList.add(cls);
+    setTimeout(function(){ bot.classList.remove(cls); }, ms);
+  }
+
+  /* ── تفاعل الضغط ── */
+  function poke(){
+    var l = LINES[mode] || LINES.companion;
+    say(l[Math.floor(Math.random()*l.length)]);
+    if (reduced) return;
+    flash('jumping', 640);
+    flash('waving', 2100);
+  }
+  bot.addEventListener('click', poke);
+  bot.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); poke(); }
+  });
+
+  /* ── وضع ١: رفيق الركن ── */
+  var lastY = window.scrollY, walkTimer = null, lastSection = -1;
+  function companionScroll(){
+    if (mode !== 'companion' || reduced) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? window.scrollY / h : 0;
+    var maxX = window.innerWidth - bot.offsetWidth - 48;
+    bot.style.insetInlineStart = (24 + p * maxX) + 'px';
+
+    if (Math.abs(window.scrollY - lastY) > 4){
+      bot.classList.add('walking');
+      clearTimeout(walkTimer);
+      walkTimer = setTimeout(function(){ bot.classList.remove('walking'); }, 320);
+    }
+    lastY = window.scrollY;
+
+    var s = Math.min(SECTIONS.length - 1, Math.floor(p * SECTIONS.length + 0.15));
+    if (s !== lastSection){ lastSection = s; say(SECTIONS[s], 1800); }
+  }
+  window.addEventListener('scroll', function(){
+    if (mode === 'companion') requestAnimationFrame(companionScroll);
+  }, {passive:true});
+
+  /* ── وضع ٣: متنطط ── */
+  var x=90, y=140, vx=2.7, vy=2.1;
+  function bounceStep(){
+    if (mode !== 'bounce') return;
+    var w = window.innerWidth  - bot.offsetWidth;
+    var h = window.innerHeight - bot.offsetHeight;
+    x += vx; y += vy;
+    if (x <= 0){ x = 0; vx = Math.abs(vx); flash('jumping',400); }
+    if (x >= w){ x = w; vx = -Math.abs(vx); flash('jumping',400); }
+    if (y <= 0){ y = 0; vy = Math.abs(vy); }
+    if (y >= h){ y = h; vy = -Math.abs(vy); flash('jumping',400); }
+    bot.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (vx*2.4) + 'deg)';
+    raf = requestAnimationFrame(bounceStep);
+  }
+  document.addEventListener('mousemove', function(e){
+    if (mode !== 'bounce') return;
+    var dx = e.clientX - (x + bot.offsetWidth/2);
+    var dy = e.clientY - (y + bot.offsetHeight/2);
+    var d  = Math.hypot(dx, dy);
+    if (d < 190 && d > 1){ vx += dx/d * 0.32; vy += dy/d * 0.32; }
+    var sp = Math.hypot(vx, vy), cap = 6.5;
+    if (sp > cap){ vx = vx/sp*cap; vy = vy/sp*cap; }
+  }, {passive:true});
+
+  /* ── وضع ٢: ساكن الترمينال ── */
+  var termLine = document.getElementById('termLine');
+  var msgs = ['npm run build-idea', 'deploying…', '✓ جاهز للإطلاق'];
+  var mi=0, ci=0, del=false;
+  function type(){
+    if (reduced){ termLine.textContent = msgs[2]; return; }
+    var full = msgs[mi];
+    ci += del ? -1 : 1;
+    termLine.textContent = full.slice(0, ci);
+    if (!del && ci === full.length){ del = true;  return setTimeout(type, 1400); }
+    if (del && ci === 0)          { del = false; mi = (mi+1) % msgs.length; }
+    setTimeout(type, del ? 24 : 52);
+  }
+  type();
+
+  document.querySelectorAll('.btn').forEach(function(btn){
+    btn.addEventListener('mouseenter', function(){
+      if (mode === 'terminal' && !reduced){ flash('waving', 1100); say('اضغط!', 1400); }
+    });
+  });
+
+  /* ── تبديل الأوضاع ── */
+  function setMode(m){
+    mode = m;
+    cancelAnimationFrame(raf);
+    bot.className = 'bot';
+    bot.style.cssText = '';
+    if (host.contains(bot)) document.body.appendChild(bot);
+
+    if (m === 'off'){ bot.classList.add('hidden'); hint.textContent = 'الروبوت مقفول — ده شكل الموقع من غيره.'; return; }
+
+    bot.classList.add('mode-' + m);
+    if (m === 'companion'){
+      lastSection = -1;
+      companionScroll();
+      hint.textContent = 'قاعد في الركن، بيمشي مع السكروول، وبيقولك انت في أنهي قسم. دوس عليه.';
+      setTimeout(function(){ say('أهلًا 👋', 2200); }, 500);
+    }
+    if (m === 'terminal'){
+      host.appendChild(bot);
+      bot.style.insetInlineEnd = '-14px';
+      bot.style.bottom = '-16px';
+      hint.textContent = 'عايش جوه صندوق الكود. عدّي على أي زرار فوق وشوف رد فعله.';
+      setTimeout(function(){ say('بشتغل…', 2200); }, 500);
+    }
+    if (m === 'bounce'){
+      x = 90; y = 140; vx = 2.7; vy = 2.1;
+      bounceStep();
+      hint.textContent = 'بيتنطط حر في الصفحة وبيتخبط في الحواف. قرّب الماوس منه.';
+      setTimeout(function(){ say('يوهوووو 🚀', 2200); }, 500);
+    }
+  }
+
+  document.querySelectorAll('.modebtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.modebtn').forEach(function(o){
+        o.setAttribute('aria-pressed', String(o === b));
+      });
+      setMode(b.dataset.mode);
+    });
+  });
+
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) cancelAnimationFrame(raf);
+    else if (mode === 'bounce') bounceStep();
+  });
+
+  setMode('companion');
+})();
+</script>
+</body>
+</html>
