@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://iegy.github.io/index.html</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://iegy.github.io/about.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://iegy.github.io/services.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://iegy.github.io/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://iegy.github.io/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://iegy.github.io/work-newshop.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://iegy.github.io/work-egyup.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://iegy.github.io/work-noor.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://iegy.github.io/work-selim.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://iegy.github.io/work-natiga.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://iegy.github.io/work-book.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>

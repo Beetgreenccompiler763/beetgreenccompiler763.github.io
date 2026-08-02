@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iegy.github.io/sitemap.xml
